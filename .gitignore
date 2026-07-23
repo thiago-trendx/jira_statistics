@@ -1,0 +1,12 @@
+# Segredos
+.env
+
+# Ambiente virtual
+.venv/
+
+# Cache do Python
+__pycache__/
+*.pyc
+
+# Exports gerados pelos scripts (dados, não código)
+output/
