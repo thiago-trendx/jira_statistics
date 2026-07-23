@@ -27,6 +27,15 @@ PLANNING_WINDOW_DAYS = 5
 DONE_CATEGORY = "Itens concluídos"
 TODO_CATEGORY = "Itens Pendentes"
 
+# Visão ajustada para a apresentação: a equipe ainda está migrando para o
+# workflow novo, e boa parte do trabalho fica "pronto" na prática antes de
+# passar por QA/homologação/deploy. Qualquer status posterior à finalização
+# do dev conta como concluído, além da statusCategory "Itens concluídos"
+# (que hoje só cobre "Pronto"): QA, HOMOLOGAÇÃO, PRONTO P/ TESTES e
+# PRONTO P/ PROD são todos pós-dev no fluxo antigo (o card entra em QA
+# assim que o dev termina sua parte, mesmo que homologação/deploy demorem).
+EFFECTIVE_DONE_STATUSES = {"QA", "HOMOLOGAÇÃO", "PRONTO P/ TESTES", "PRONTO P/ PROD"}
+
 REVIEW_STATUS = "Em Revisao"
 BLOCKED_STATUS = "Bloqueado"
 REWORK_TARGET_STATUSES = {"CORREÇÃO", "Reprovado", "ANÁLISE"}
@@ -123,7 +132,7 @@ def fetch_subtasks_for_parents(parent_keys):
         f'AND issuetype in ({",".join(SUBTASK_TYPE_IDS)}) '
         f'AND parent in ({keys_list})'
     )
-    fields = "status,parent,timeoriginalestimate,timespent"
+    fields = "status,parent,created,timeoriginalestimate,timespent"
     return fetch_all_issues(jql, fields)
 
 
@@ -168,12 +177,19 @@ def sprint_snapshot_at(sprint_changes, target_dt):
     return {name.strip() for name in latest_value.split(",") if name.strip()}
 
 
+def classify_by_creation_date(created_dt, planning_cutoff_dt):
+    """Fallback quando a Subtarefa não tem changelog próprio do campo Sprint
+    (comum — o campo é herdado do pai só na criação, sem gerar evento de
+    mudança). Usa só a data de criação da própria Subtarefa — não a
+    classificação da História-mãe, que pode estar presa há meses rolando de
+    sprint em sprint e contaminaria a leitura."""
+    return "planejada" if created_dt <= planning_cutoff_dt else "adicionada"
+
+
 def classify_by_sprint_field(sprint_changes, sprint_name, planning_cutoff_dt, end_dt, fallback_label):
-    """Classifica uma issue (Subtarefa ou nível superior) como 'planejada',
-    'adicionada' ou 'removida' com base no próprio changelog do campo Sprint.
-    Usa fallback_label quando a issue não tem changelog próprio de Sprint
-    (comum em Subtarefas cujo campo foi herdado do pai só na criação, sem
-    gerar evento de mudança)."""
+    """Classifica uma Subtarefa como 'planejada', 'adicionada' ou 'removida'
+    com base no próprio changelog do campo Sprint. Usa fallback_label (ver
+    classify_by_creation_date) quando não há changelog próprio de Sprint."""
     if not sprint_changes:
         return fallback_label
 
@@ -209,13 +225,17 @@ def status_at(status_transitions, target_dt, current_status_fallback):
     return latest
 
 
+def is_effectively_done(status_name, status_category_map):
+    return status_category_map.get(status_name) == DONE_CATEGORY or status_name in EFFECTIVE_DONE_STATUSES
+
+
 def compute_lead_time_hours(status_transitions, status_category_map):
     start_ts = None
     for changed_at, _from_status, to_status in status_transitions:
         to_category = status_category_map.get(to_status)
         if start_ts is None and to_category and to_category != TODO_CATEGORY:
             start_ts = changed_at
-        if to_category == DONE_CATEGORY:
+        if is_effectively_done(to_status, status_category_map):
             if start_ts is None or changed_at <= start_ts:
                 return None
             return business_hours_between(start_ts, changed_at)
@@ -243,10 +263,6 @@ def _sum_status_intervals(status_transitions, target_status, reference_end_dt):
 
 def compute_blocked_hours(status_transitions, reference_end_dt):
     return _sum_status_intervals(status_transitions, BLOCKED_STATUS, reference_end_dt)
-
-
-def compute_review_hours(status_transitions, reference_end_dt):
-    return _sum_status_intervals(status_transitions, REVIEW_STATUS, reference_end_dt)
 
 
 def count_review_cycles_and_rework(status_transitions):
@@ -302,15 +318,6 @@ def main():
     parent_keys = all_parent_keys(contents)
     print(f"Issues de nível superior que passaram pela sprint: {len(parent_keys)}")
 
-    parent_classification = {}
-    for parent_key in parent_keys:
-        histories = fetch_issue_changelog(parent_key)
-        _status_transitions, sprint_changes = extract_transitions(histories)
-        parent_classification[parent_key] = classify_by_sprint_field(
-            sprint_changes, sprint["name"], planning_cutoff_dt, end_dt, fallback_label="planejada",
-        )
-        time.sleep(0.2)
-
     subtasks = fetch_subtasks_for_parents(parent_keys)
     print(f"Subtarefas encontradas: {len(subtasks)}")
 
@@ -327,18 +334,19 @@ def main():
         fields = subtask["fields"]
         parent_key = (fields.get("parent") or {}).get("key")
         current_status_name = (fields.get("status") or {}).get("name")
+        created_dt = dtparser.isoparse(fields["created"])
 
         histories = fetch_issue_changelog(key)
         status_transitions, sprint_changes = extract_transitions(histories)
         all_status_transitions.append(status_transitions)
 
-        parent_label = parent_classification.get(parent_key, "planejada")
+        fallback_label = classify_by_creation_date(created_dt, planning_cutoff_dt)
         label = classify_by_sprint_field(
-            sprint_changes, sprint["name"], planning_cutoff_dt, end_dt, fallback_label=parent_label,
+            sprint_changes, sprint["name"], planning_cutoff_dt, end_dt, fallback_label=fallback_label,
         )
 
         status_no_fim = status_at(status_transitions, end_dt, current_status_name)
-        entregue = status_category_map.get(status_no_fim) == DONE_CATEGORY
+        entregue = is_effectively_done(status_no_fim, status_category_map)
         bloqueado_no_fim = status_no_fim == BLOCKED_STATUS
 
         review_entries, rework_count = count_review_cycles_and_rework(status_transitions)
@@ -352,7 +360,6 @@ def main():
             "bloqueado_no_fim": bloqueado_no_fim,
             "lead_time_horas": compute_lead_time_hours(status_transitions, status_category_map),
             "tempo_bloqueado_horas": compute_blocked_hours(status_transitions, end_dt),
-            "tempo_revisao_horas": compute_review_hours(status_transitions, end_dt),
             "ciclos_revisao": review_entries,
             "retrabalhos": rework_count,
             "estimativa_original_segundos": fields.get("timeoriginalestimate"),
@@ -389,12 +396,6 @@ def main():
     lead_time_medio = lead_times.mean() if not lead_times.empty else None
     lead_time_mediano = lead_times.median() if not lead_times.empty else None
 
-    tempo_revisao_total = em_escopo_final["tempo_revisao_horas"].sum()
-    cards_com_revisao = em_escopo_final[em_escopo_final["ciclos_revisao"] > 0]
-    tempo_revisao_medio = (
-        cards_com_revisao["tempo_revisao_horas"].mean() if not cards_com_revisao.empty else None
-    )
-
     total_ciclos_revisao = em_escopo_final["ciclos_revisao"].sum()
     total_retrabalhos = em_escopo_final["retrabalhos"].sum()
     taxa_retrabalho = total_retrabalhos / total_ciclos_revisao if total_ciclos_revisao else None
@@ -410,11 +411,15 @@ def main():
     else:
         precisao_estimativa = None
 
+    DONE_LABEL = "'Pronto', QA, HOMOLOGAÇÃO, PRONTO P/ TESTES ou PRONTO P/ PROD"
+
     resumo_rows = [
         {"metrica": "3.1.1", "nome": "Conclusão do escopo total", "valor": pct_conclusao_total,
-         "formula": "entregues / (planejado_início + adicionado)", "base_n": n_em_escopo_final},
+         "formula": f"entregues / (planejado_início + adicionado); 'entregue' inclui {DONE_LABEL}",
+         "base_n": n_em_escopo_final},
         {"metrica": "3.1.2", "nome": "Conclusão do escopo planejado", "valor": pct_conclusao_planejado,
-         "formula": "entregues_dos_planejados / planejado_início", "base_n": n_planejadas},
+         "formula": f"entregues_dos_planejados / planejado_início; 'entregue' inclui {DONE_LABEL}",
+         "base_n": n_planejadas},
         {"metrica": "3.2.1", "nome": "Desvio de escopo", "valor": desvio_escopo,
          "formula": "adicionado / planejado_início", "base_n": n_planejadas},
         {"metrica": "3.2.2", "nome": "Precisão da estimativa", "valor": precisao_estimativa,
@@ -424,18 +429,20 @@ def main():
         {"metrica": "3.3.2", "nome": "Tempo total bloqueado (h úteis)", "valor": tempo_bloqueado_total,
          "formula": "soma dos intervalos em Bloqueado (seg-sex 9h-18h, sem feriados BR)", "base_n": n_em_escopo_final},
         {"metrica": "3.4", "nome": "Lead time médio (h úteis)", "valor": lead_time_medio,
-         "formula": "1ª saída de 'Itens Pendentes' até 1º 'Pronto'", "base_n": len(lead_times)},
+         "formula": f"1ª saída de 'Itens Pendentes' até 1º status entre {DONE_LABEL}", "base_n": len(lead_times)},
         {"metrica": "3.4", "nome": "Lead time mediano (h úteis)", "valor": lead_time_mediano,
-         "formula": "1ª saída de 'Itens Pendentes' até 1º 'Pronto'", "base_n": len(lead_times)},
-        {"metrica": "3.5", "nome": "Tempo em revisão total (h úteis)", "valor": tempo_revisao_total,
-         "formula": "soma dos intervalos em 'Em Revisao'", "base_n": n_em_escopo_final},
-        {"metrica": "3.5", "nome": "Tempo em revisão médio por card (h úteis)", "valor": tempo_revisao_medio,
-         "formula": "média entre cards que passaram por revisão", "base_n": len(cards_com_revisao)},
+         "formula": f"1ª saída de 'Itens Pendentes' até 1º status entre {DONE_LABEL}", "base_n": len(lead_times)},
         {"metrica": "3.6", "nome": "Taxa de retrabalho", "valor": taxa_retrabalho,
          "formula": "transições Em Revisao→{CORREÇÃO,Reprovado,ANÁLISE} / entradas em Em Revisao",
          "base_n": total_ciclos_revisao},
         {"metrica": "meta", "nome": "Regime de workflow", "valor": regime,
          "formula": "'antigo' se algum status do fluxo granular aparece no changelog da sprint", "base_n": len(df)},
+        {"metrica": "meta", "nome": "Nota metodológica", "valor": "visão ajustada para apresentação",
+         "formula": "3.5 (tempo em revisão) removida — será obtida via GitHub. "
+                     f"'Entregue' considera qualquer status pós-dev como concluído ({DONE_LABEL}), "
+                     "não só 'Pronto'. "
+                     "Fallback de escopo usa a data de criação da própria Subtarefa, não a História-mãe.",
+         "base_n": None},
     ]
 
     output_path = f"output/sprint_metrics_{sprint['name'].replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
