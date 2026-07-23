@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 from dateutil import parser as dtparser
 
-from business_hours import business_hours_between
+from business_hours import WORKDAY_END, WORKDAY_START, business_hours_between
 from jira_client import (
     BOARD_ID,
     PROJECT_KEY,
@@ -16,6 +16,12 @@ from jira_client import (
 )
 
 SUBTASK_TYPE_IDS = ["10003", "10110"]
+
+# Horas úteis por dia (seg-sex, 9h-18h = 9h), para converter tempo bloqueado
+# de horas para dias úteis nos números da apresentação.
+BUSINESS_HOURS_PER_DAY = (
+    WORKDAY_END.hour + WORKDAY_END.minute / 60
+) - (WORKDAY_START.hour + WORKDAY_START.minute / 60)
 
 # "Planejado no início" não usa o instante exato de sprint.startDate: os dados
 # mostram replanejamento em lote alguns dias após o clique em "Iniciar Sprint"
@@ -265,6 +271,10 @@ def compute_blocked_hours(status_transitions, reference_end_dt):
     return _sum_status_intervals(status_transitions, BLOCKED_STATUS, reference_end_dt)
 
 
+def count_blocked_entries(status_transitions):
+    return sum(1 for _c, _f, to_status in status_transitions if to_status == BLOCKED_STATUS)
+
+
 def count_review_cycles_and_rework(status_transitions):
     review_entries = 0
     rework_count = 0
@@ -360,6 +370,7 @@ def main():
             "bloqueado_no_fim": bloqueado_no_fim,
             "lead_time_horas": compute_lead_time_hours(status_transitions, status_category_map),
             "tempo_bloqueado_horas": compute_blocked_hours(status_transitions, end_dt),
+            "vezes_bloqueado": count_blocked_entries(status_transitions),
             "ciclos_revisao": review_entries,
             "retrabalhos": rework_count,
             "estimativa_original_segundos": fields.get("timeoriginalestimate"),
@@ -391,6 +402,15 @@ def main():
         em_escopo_final["bloqueado_no_fim"].sum() / n_planejadas if n_planejadas else None
     )
     tempo_bloqueado_total = em_escopo_final["tempo_bloqueado_horas"].sum()
+
+    cards_bloqueados = em_escopo_final[em_escopo_final["vezes_bloqueado"] > 0]
+    n_cards_bloqueados = len(cards_bloqueados)
+    tempo_medio_bloqueio_dias = (
+        (cards_bloqueados["tempo_bloqueado_horas"].mean() / BUSINESS_HOURS_PER_DAY)
+        if n_cards_bloqueados else None
+    )
+
+    n_entregues = int(em_escopo_final["entregue"].sum())
 
     lead_times = em_escopo_final["lead_time_horas"].dropna()
     lead_time_medio = lead_times.mean() if not lead_times.empty else None
@@ -435,6 +455,13 @@ def main():
         {"metrica": "3.6", "nome": "Taxa de retrabalho", "valor": taxa_retrabalho,
          "formula": "transições Em Revisao→{CORREÇÃO,Reprovado,ANÁLISE} / entradas em Em Revisao",
          "base_n": total_ciclos_revisao},
+        {"metrica": "extra", "nome": "Cards que passaram por Bloqueado (quantidade)", "valor": n_cards_bloqueados,
+         "formula": "contagem de cards com pelo menos uma entrada em 'Bloqueado'", "base_n": n_em_escopo_final},
+        {"metrica": "extra", "nome": "Tempo médio de bloqueio (dias úteis)", "valor": tempo_medio_bloqueio_dias,
+         "formula": f"média de tempo_bloqueado_horas entre os cards bloqueados, ÷{BUSINESS_HOURS_PER_DAY:.0f}h/dia útil",
+         "base_n": n_cards_bloqueados},
+        {"metrica": "extra", "nome": "Cards concluídos (quantidade)", "valor": n_entregues,
+         "formula": f"contagem de cards com status final entre {DONE_LABEL}", "base_n": n_em_escopo_final},
         {"metrica": "meta", "nome": "Regime de workflow", "valor": regime,
          "formula": "'antigo' se algum status do fluxo granular aparece no changelog da sprint", "base_n": len(df)},
         {"metrica": "meta", "nome": "Nota metodológica", "valor": "visão ajustada para apresentação",
