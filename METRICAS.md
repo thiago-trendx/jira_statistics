@@ -92,6 +92,15 @@ Se o workflow mudar de novo, estender os conjuntos de aliases em `sprint_metrics
 
 A pasta `output/` está no `.gitignore`: os exports não são commitados.
 
+## Simulação: cards fora de sprint
+
+`simulacao_fora_sprint.py` mostra quanto as métricas mudam se entrarem no escopo os cards que não pertencem a nenhuma sprint no Jira ("sem sprint" = nunca adicionados ou retirados depois), mas que foram movidos para um status concluído ou para `Em Revisao` durante a sprint. Calcula três cenários: **A** (só o registrado, igual ao `sprint_metrics.py`), **B** (A + Subtarefas fora de sprint) e **C** (B + Bug/Tarefa/História fora de sprint sem Subtarefas). Épicos não entram; Histórias com Subtarefas são representadas por elas; Subtarefas já contadas pela sprint do pai não se repetem.
+
+- Cada card entra uma vez, na sprint cujo período contém o primeiro movimento dele a partir de `--desde`. Para sprints consecutivas, use a mesma data (a abertura da sprint mais antiga do grupo) em todas as execuções.
+- Classificação planejada/adicionada: a mesma regra do fallback (criado até 5 dias após o início = planejada).
+- Só entram cards de fora que **progrediram**: a conclusão é um teto e o desvio é um piso.
+- Exemplo usado nos dashboards de out/2026: `--desde 2026-08-31` para Pós-IHRSA, AI.Runner e AI.VECTA; na AI.VECTA, a conclusão foi apresentada com `EXTRA_DONE_STATUSES="Em Revisao"` e o lead time sem essa variável.
+
 ## Limitações conhecidas
 
 - A API Greenhopper é interna e não documentada; pode mudar sem aviso.

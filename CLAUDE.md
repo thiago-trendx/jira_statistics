@@ -10,6 +10,7 @@ A small suite of Python scripts around Jira Cloud data for the GOPER project:
 - [sprint_metrics.py](sprint_metrics.py) — computes the sprint metrics defined in the team's metrics spec (scope completion, scope deviation, blocked time, lead time, review time, rework rate) for a single sprint and exports them to Excel.
 - [jira_client.py](jira_client.py) — shared Jira API helpers used by both scripts.
 - [business_hours.py](business_hours.py) — business-hours (seg-sex 9h-18h, BR national holidays excluded) duration calculator, used only by `sprint_metrics.py`.
+- [simulacao_fora_sprint.py](simulacao_fora_sprint.py) — simulation on top of `sprint_metrics.py`: includes cards that moved to a done/review status during a sprint but belong to no sprint in Jira, and compares the metrics with and without them (`python simulacao_fora_sprint.py "<sprint>" --desde AAAA-MM-DD`). Reuses `sprint_metrics` functions, so it follows the same status rules (including `EXTRA_DONE_STATUSES`).
 
 No package structure, test suite, or build step.
 
