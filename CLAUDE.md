@@ -13,6 +13,8 @@ A small suite of Python scripts around Jira Cloud data for the GOPER project:
 
 No package structure, test suite, or build step.
 
+For the definition of each metric (formulas, scope classification, "entregue" criteria, methodology decisions, known limitations), see [METRICAS.md](METRICAS.md). Keep it in sync when changing metric logic in `sprint_metrics.py`.
+
 ## Running
 
 ```bash

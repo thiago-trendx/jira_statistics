@@ -42,6 +42,11 @@ TODO_CATEGORY = "Itens Pendentes"
 # assim que o dev termina sua parte, mesmo que homologação/deploy demorem).
 EFFECTIVE_DONE_STATUSES = {"QA", "HOMOLOGAÇÃO", "PRONTO P/ TESTES", "PRONTO P/ PROD"}
 
+# Para sprints ainda ativas na véspera da revisão: EXTRA_DONE_STATUSES="Em Revisao"
+# (lista separada por vírgula) conta esses status como concluídos nesta execução.
+_extra_done = {s.strip() for s in os.getenv("EXTRA_DONE_STATUSES", "").split(",") if s.strip()}
+EFFECTIVE_DONE_STATUSES |= _extra_done
+
 REVIEW_STATUS = "Em Revisao"
 BLOCKED_STATUS = "Bloqueado"
 REWORK_TARGET_STATUSES = {"CORREÇÃO", "Reprovado", "ANÁLISE"}
@@ -432,6 +437,8 @@ def main():
         precisao_estimativa = None
 
     DONE_LABEL = "'Pronto', QA, HOMOLOGAÇÃO, PRONTO P/ TESTES ou PRONTO P/ PROD"
+    if _extra_done:
+        DONE_LABEL += " (+ " + ", ".join(sorted(_extra_done)) + ")"
 
     resumo_rows = [
         {"metrica": "3.1.1", "nome": "Conclusão do escopo total", "valor": pct_conclusao_total,

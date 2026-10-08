@@ -1,0 +1,775 @@
+<title>Sprints Pós-IHRSA · AI.Runner · AI.VECTA — painel de entrega</title>
+<style>
+  :root {
+    --bg: #F2F5F4;
+    --surface: #FFFFFF;
+    --surface-2: #EAEFED;
+    --border: #DBE3E0;
+    --ink: #14211E;
+    --ink-2: #45524F;
+    --ink-3: #6F7C79;
+    --accent: #0E8F7E;
+    --accent-soft: #E1F1EE;
+    --good: #2F8F5B;
+    --good-soft: #E4F3EA;
+    --attn: #B5651D;
+    --attn-soft: #FBEDE0;
+    --s-fit: #3A5FA6;
+    --s-fit-soft: #E7ECF6;
+    --s-hexa: #C07C12;
+    --s-hexa-soft: #F7ECDA;
+    --s-copa: #0E8F7E;
+    --s-copa-soft: #E1F1EE;
+    --shadow: 0 1px 2px rgba(20, 33, 30, 0.06), 0 8px 24px -12px rgba(20, 33, 30, 0.12);
+    --sans: "Segoe UI", "Segoe UI Variable", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "Cascadia Mono", "Cascadia Code", "SF Mono", Consolas, "Roboto Mono", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101715;
+      --surface: #17211E;
+      --surface-2: #1D2825;
+      --border: #2A3733;
+      --ink: #EEF3F1;
+      --ink-2: #B7C4C0;
+      --ink-3: #8A9793;
+      --accent: #279F8E;
+      --accent-soft: #16302A;
+      --good: #4FAE79;
+      --good-soft: #16281D;
+      --attn: #D98A45;
+      --attn-soft: #2E2013;
+      --s-fit: #6482C4;
+      --s-fit-soft: #1C2436;
+      --s-hexa: #B87F26;
+      --s-hexa-soft: #2E2415;
+      --s-copa: #279F8E;
+      --s-copa-soft: #16302A;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101715;
+    --surface: #17211E;
+    --surface-2: #1D2825;
+    --border: #2A3733;
+    --ink: #EEF3F1;
+    --ink-2: #B7C4C0;
+    --ink-3: #8A9793;
+    --accent: #279F8E;
+    --accent-soft: #16302A;
+    --good: #4FAE79;
+    --good-soft: #16281D;
+    --attn: #D98A45;
+    --attn-soft: #2E2013;
+    --s-fit: #6482C4;
+    --s-fit-soft: #1C2436;
+    --s-hexa: #B87F26;
+    --s-hexa-soft: #2E2415;
+    --s-copa: #279F8E;
+    --s-copa-soft: #16302A;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+  }
+  :root[data-theme="light"] {
+    --bg: #F2F5F4;
+    --surface: #FFFFFF;
+    --surface-2: #EAEFED;
+    --border: #DBE3E0;
+    --ink: #14211E;
+    --ink-2: #45524F;
+    --ink-3: #6F7C79;
+    --accent: #0E8F7E;
+    --accent-soft: #E1F1EE;
+    --good: #2F8F5B;
+    --good-soft: #E4F3EA;
+    --attn: #B5651D;
+    --attn-soft: #FBEDE0;
+    --s-fit: #3A5FA6;
+    --s-fit-soft: #E7ECF6;
+    --s-hexa: #C07C12;
+    --s-hexa-soft: #F7ECDA;
+    --s-copa: #0E8F7E;
+    --s-copa-soft: #E1F1EE;
+    --shadow: 0 1px 2px rgba(20, 33, 30, 0.06), 0 8px 24px -12px rgba(20, 33, 30, 0.12);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    padding: 0 0 64px;
+  }
+  a { color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 40px 28px 0; }
+
+  /* ---------- Header ---------- */
+  header.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 28px; }
+  .eyebrow { font-size: 12.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 0 0 6px; }
+  h1 { font-size: clamp(26px, 3.4vw, 34px); font-weight: 600; margin: 0 0 8px; letter-spacing: -0.01em; text-wrap: balance; }
+  .subtitle { color: var(--ink-2); font-size: 15px; max-width: 62ch; margin: 0; }
+  .meta-block { text-align: right; color: var(--ink-3); font-size: 13px; }
+  .meta-block strong { color: var(--ink-2); font-weight: 600; }
+
+  /* ---------- Sprint legend chips ---------- */
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 32px; }
+  .chip {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 8px 14px; box-shadow: var(--shadow);
+  }
+  .chip .swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+  .chip .name { font-weight: 600; font-size: 13.5px; }
+  .chip .range { color: var(--ink-3); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+  /* ---------- Section headings ---------- */
+  section { margin-bottom: 40px; }
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  h2 { font-size: 18px; font-weight: 600; margin: 0; letter-spacing: -0.005em; }
+  .section-note { color: var(--ink-3); font-size: 13px; margin: 0; }
+
+  /* ---------- KPI row ---------- */
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+  .kpi-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px 20px; box-shadow: var(--shadow);
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .kpi-label { font-size: 13px; color: var(--ink-2); font-weight: 600; }
+  .kpi-value { font-family: var(--mono); font-size: 30px; font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+  .kpi-delta { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 600; width: fit-content; padding: 3px 8px; border-radius: 999px; font-variant-numeric: tabular-nums; }
+  .kpi-delta.good { color: var(--good); background: var(--good-soft); }
+  .kpi-delta.attn { color: var(--attn); background: var(--attn-soft); }
+  .kpi-delta.flat { color: var(--ink-3); background: var(--surface-2); }
+  .kpi-sub { font-size: 12px; color: var(--ink-3); }
+
+  /* ---------- Chart cards ---------- */
+  .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+  .chart-grid + .chart-grid { margin-top: 14px; }
+  .chart-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px 18px 14px; box-shadow: var(--shadow);
+  }
+  .chart-card.wide { grid-column: span 2; }
+  .chart-title { font-size: 13.5px; font-weight: 600; margin: 0 0 2px; }
+  .chart-desc { font-size: 12px; color: var(--ink-3); margin: 0 0 10px; }
+  .chart-holder { width: 100%; }
+  .bar-value { font-family: var(--mono); font-size: 12.5px; fill: var(--ink); font-variant-numeric: tabular-nums; }
+  .bar-cat { font-family: var(--sans); font-size: 11.5px; fill: var(--ink-3); }
+  svg rect.bar { transition: opacity .12s ease; cursor: default; }
+  svg rect.bar:hover { opacity: .82; }
+  .twin-row { display: flex; flex-direction: column; gap: 2px; }
+  .twin-label { font-size: 11px; color: var(--ink-3); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; margin-top: 8px; }
+
+  /* ---------- Composition (stacked) ---------- */
+  .comp-rows { display: flex; flex-direction: column; gap: 16px; }
+  .comp-row { display: grid; grid-template-columns: 96px 1fr; align-items: center; gap: 14px; }
+  .comp-row .sprint-name { font-size: 13.5px; font-weight: 600; }
+  .comp-row .sprint-n { display: block; font-size: 11.5px; color: var(--ink-3); font-weight: 400; font-variant-numeric: tabular-nums; }
+  .comp-legend { display: flex; gap: 18px; margin-top: 4px; flex-wrap: wrap; }
+  .comp-legend-item { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--ink-2); }
+  .comp-legend-item .dot { width: 9px; height: 9px; border-radius: 3px; }
+
+  /* ---------- Insights ---------- */
+  .insight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+  .insight-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 8px;
+  }
+  .pill { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 4px 9px; border-radius: 999px; width: fit-content; }
+  .pill.good { color: var(--good); background: var(--good-soft); }
+  .pill.attn { color: var(--attn); background: var(--attn-soft); }
+  .pill.gap { color: var(--ink-2); background: var(--surface-2); }
+  .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .insight-title { font-size: 15px; font-weight: 600; margin: 0; }
+  .insight-body { font-size: 13.5px; color: var(--ink-2); margin: 0; }
+
+  /* ---------- Methodology ---------- */
+  .methodology { background: var(--surface-2); border: 1px solid var(--border); border-radius: 14px; padding: 18px 22px; }
+  .methodology h3 { font-size: 13px; margin: 0 0 10px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-2); }
+  .methodology ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 7px; }
+  .methodology li { font-size: 13px; color: var(--ink-2); }
+  .methodology code { font-family: var(--mono); font-size: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; color: var(--ink); }
+
+  /* ---------- Data table ---------- */
+  details.table-toggle { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 4px 20px; box-shadow: var(--shadow); }
+  details.table-toggle summary { cursor: pointer; padding: 14px 0; font-size: 13.5px; font-weight: 600; list-style: none; display: flex; align-items: center; gap: 8px; }
+  details.table-toggle summary::-webkit-details-marker { display: none; }
+  details.table-toggle summary::before { content: "▸"; color: var(--accent); transition: transform .15s ease; font-size: 11px; }
+  details.table-toggle[open] summary::before { transform: rotate(90deg); }
+  .table-scroll { overflow-x: auto; padding-bottom: 18px; }
+  table.data { border-collapse: collapse; width: 100%; min-width: 620px; font-size: 13px; }
+  table.data th, table.data td { text-align: right; padding: 7px 12px; border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+  table.data th:first-child, table.data td:first-child { text-align: left; font-variant-numeric: normal; }
+  table.data thead th { color: var(--ink-3); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: .03em; }
+  table.data tbody th { font-weight: 500; color: var(--ink-2); }
+
+  footer.page-foot { text-align: center; color: var(--ink-3); font-size: 12px; margin-top: 36px; }
+
+  @media (max-width: 720px) {
+    .wrap { padding: 28px 16px 0; }
+    header.top { flex-direction: column; align-items: flex-start; }
+    .meta-block { text-align: left; }
+    .chart-card.wide { grid-column: span 1; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <p class="eyebrow">Projeto GOPER · Métricas de entrega</p>
+      <h1>Como foram as últimas três sprints</h1>
+      <p class="subtitle">Comparativo entre Pós-IHRSA, AI.Runner e AI.VECTA</p>
+    </div>
+    <div class="meta-block">
+      <div><strong>Granularidade:</strong> Subtarefa + cards avulsos fora de sprint</div>
+      <div><strong>Horário</strong> considerado: seg–sex, 9h–18h</div>
+      <div><strong>Gerado em:</strong> 08/10/2026</div>
+    </div>
+  </header>
+
+  <div class="legend" id="legend"></div>
+  <p class="section-note" id="active-note" style="margin: -20px 0 28px; color: var(--attn); font-weight: 600;">⚠ AI.VECTA ainda está em andamento (encerra 09/10) — os números dela são um retrato parcial de 08/10, e as 38 tarefas em “Em Revisao” foram contadas como concluídas porque a revisão/fechamento é amanhã. Sem essa regra, a conclusão da VECTA seria 70,2% (e não 85,1%). Estes números incluem cards que não estavam em nenhuma sprint no Jira — veja a metodologia no fim da página.</p>
+
+  <section id="kpi-section">
+    <div class="section-head">
+      <h2>Sprint mais recente — AI.VECTA (parcial)</h2>
+      <p class="section-note">Variação em relação à sprint anterior (AI.Runner)</p>
+    </div>
+    <div class="kpi-grid" id="kpi-grid"></div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Entrega</h2>
+      <p class="section-note">Conclusão do escopo total e desvio de escopo, nas três sprints</p>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <p class="chart-title">Conclusão do escopo total</p>
+        <p class="chart-desc">Entregues ÷ (planejado no início + adicionado depois)</p>
+        <div class="chart-holder" id="chart-conclusao"></div>
+      </div>
+      <div class="chart-card">
+        <p class="chart-title">Desvio de escopo</p>
+        <p class="chart-desc">Cards adicionados ÷ planejados no início</p>
+        <div class="chart-holder" id="chart-desvio"></div>
+      </div>
+      <div class="chart-card">
+        <p class="chart-title">Cards concluídos</p>
+        <p class="chart-desc">Contagem absoluta, sobre o total de cards da sprint</p>
+        <div class="chart-holder" id="chart-concluidos"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Conclusão do escopo — como está vs. sem Backlog</h2>
+      <p class="section-note">Simulação: cards que terminaram em Backlog tratados como retirados informalmente da sprint</p>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-card wide">
+        <p class="chart-title">Conclusão do escopo total</p>
+        <p class="chart-desc">“Como está” = concluídos ÷ todos os cards. “Sem Backlog” = concluídos ÷ cards que não terminaram em Backlog.</p>
+        <div class="chart-holder" id="chart-backlog-compare"></div>
+        <div class="comp-legend">
+          <div class="comp-legend-item"><span class="dot" style="background:var(--ink-3)"></span>Como está</div>
+          <div class="comp-legend-item"><span class="dot" style="background:var(--accent)"></span>Sem os cards em Backlog</div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <p class="chart-title">Cards retirados da conta</p>
+        <p class="chart-desc">Terminaram a sprint em Backlog</p>
+        <div class="chart-holder" id="chart-backlog-n"></div>
+      </div>
+    </div>
+    <div class="chart-card" style="margin-top:14px">
+      <div class="table-scroll" style="padding-bottom:0">
+        <table class="data" id="backlog-table"></table>
+      </div>
+      <p class="chart-desc" style="margin:10px 0 0">
+        Na AI.VECTA, o “sem Backlog” usa a mesma regra do restante do painel (Em Revisao = concluído); no critério estrito, sem essa regra, ficaria em 81,7% (179 de 219).
+        Os cards continuam no campo Sprint do Jira e as demais métricas (desvio, bloqueio, lead time, retrabalho) seguem contando esses cards.
+        Na Pós-IHRSA, 18 dos 50 cards em Backlog já haviam tido andamento antes de voltar (13 já tinham entrado em revisão); na AI.Runner foram 5 e na AI.VECTA 1.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Composição da sprint ao final</h2>
+      <p class="section-note">Onde os cards de cada sprint terminaram</p>
+    </div>
+    <div class="chart-card">
+      <div class="comp-rows" id="comp-rows"></div>
+      <div class="comp-legend">
+        <div class="comp-legend-item"><span class="dot" style="background:var(--good)"></span>Concluído (Pronto; na AI.VECTA inclui Em Revisão)</div>
+        <div class="comp-legend-item"><span class="dot" style="background:var(--ink-3)"></span>Em fluxo (backlog, dev, revisão)</div>
+        <div class="comp-legend-item"><span class="dot" style="background:var(--attn)"></span>Bloqueado</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Fluxo, bloqueio e qualidade</h2>
+      <p class="section-note">Tempo em horas ou dias úteis, salvo indicação contrária</p>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-card wide">
+        <p class="chart-title">Lead time — mediana vs. média</p>
+        <p class="chart-desc">Da 1ª saída de "Itens Pendentes" até “Pronto” (ou status pós-dev do fluxo antigo). Nas três sprints o fim é “Pronto” — na AI.VECTA, “Em Revisao” não encerra o lead time, para manter a comparação justa.</p>
+        <div class="twin-label">Mediana</div>
+        <div class="chart-holder" id="chart-lead-mediana"></div>
+        <div class="twin-label">Média</div>
+        <div class="chart-holder" id="chart-lead-media"></div>
+      </div>
+      <div class="chart-card">
+        <p class="chart-title">Cards bloqueados ao final</p>
+        <p class="chart-desc">% do escopo planejado ainda bloqueado no encerramento</p>
+        <div class="chart-holder" id="chart-bloq-final"></div>
+      </div>
+      <div class="chart-card">
+        <p class="chart-title">Cards que passaram por bloqueio</p>
+        <p class="chart-desc">Contagem absoluta, sobre o total de cards da sprint</p>
+        <div class="chart-holder" id="chart-n-bloqueados"></div>
+      </div>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <p class="chart-title">Tempo médio de bloqueio</p>
+        <p class="chart-desc">Em dias úteis, entre os cards que passaram por bloqueio</p>
+        <div class="chart-holder" id="chart-tempo-bloq"></div>
+      </div>
+      <div class="chart-card">
+        <p class="chart-title">Taxa de retrabalho</p>
+        <p class="chart-desc">Transições Em Revisão → correção ÷ entradas em Em Revisão</p>
+        <div class="chart-holder" id="chart-retrabalho"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><h2>Leituras</h2></div>
+    <div class="insight-grid" id="insights"></div>
+  </section>
+
+  <section>
+    <details class="table-toggle">
+      <summary>Ver tabela com todos os números</summary>
+      <div class="table-scroll">
+        <table class="data" id="data-table"></table>
+      </div>
+    </details>
+  </section>
+
+  <section style="margin-bottom: 0;">
+    <div class="methodology">
+      <h3>Metodologia desta visão</h3>
+      <ul>
+        <li>Unidade de medida: <strong>Subtarefa</strong>. Cards avulsos (Bug, Tarefa ou História <em>sem</em> Subtarefas) entram como cards próprios; Histórias com Subtarefas são representadas por elas, e Épicos não são contados. O escopo (planejado/adicionado) vem do campo Sprint e de uma janela de planejamento de 5 dias após a abertura oficial da sprint.</li>
+        <li>"Concluído" inclui <code>Pronto</code> e qualquer status pós-dev do fluxo antigo (<code>QA</code>, <code>HOMOLOGAÇÃO</code>, <code>PRONTO P/ TESTES</code>, <code>PRONTO P/ PROD</code>). Nenhuma das três sprints terminou com cards nesses status antigos — todos ficaram em <code>Pronto</code>, <code>Em Revisao</code>, <code>EM ANDAMENTO</code>, <code>Backlog</code> ou <code>Bloqueado</code>.</li>
+        <li><strong>AI.VECTA:</strong> por decisão da equipe, <code>Em Revisao</code> conta como concluído (38 cards), porque a revisão/fechamento ocorre em 09/10. Isso vale só para conclusão e composição; o <strong>lead time</strong> da AI.VECTA foi calculado até <code>Pronto</code>, igual às outras sprints. Com a regra de revisão, a mediana cairia para 0,3h — efeito da regra, não melhora real.</li>
+        <li>Tempo bloqueado e lead time contam apenas <strong>horas úteis</strong> (seg–sex, 9h–18h, feriados nacionais brasileiros excluídos). O tempo de bloqueio considera o <strong>histórico inteiro</strong> de cada card, não só o período da sprint.</li>
+        <li><strong>Visão “sem Backlog”:</strong> simulação a pedido da gestão, que informou que os cards que terminaram em Backlog foram retirados informalmente da sprint. Eles saem só do denominador da conclusão do escopo total; seguem no campo Sprint do Jira e nas demais métricas.</li>
+        <li>"Conclusão do escopo planejado" foi omitida desta visão; mostramos apenas a conclusão do escopo total. Tempo em revisão fica de fora — será medido separadamente a partir do GitHub. Precisão de estimativa não aparece: poucas Subtarefas registram tempo estimado e gasto ao mesmo tempo.</li>
+        <li><strong>AI.VECTA está ativa</strong> (encerra 09/10) — os números são um retrato de 08/10, não o fechamento oficial.</li>
+      </ul>
+      <h3 style="margin-top:20px">Por que esta versão inclui cards de fora das sprints</h3>
+      <ul>
+        <li><strong>O problema:</strong> ao cruzar os cards do Jira com as sprints, vimos que a maior parte da movimentação não passava por elas. Desde 31/08, 250 cards foram movidos para Pronto ou Em Revisao sem estar em nenhuma sprint, contra 136 registrados nas três sprints. Frentes inteiras (Android embarcado, Performance do tablet, Espelhamento de tela, POC Goper Nexa) quase não aparecem no escopo registrado. A hipótese é de que parte do trabalho não foi reportada na sprint.</li>
+        <li><strong>O que foi incluído:</strong> cards que hoje não pertencem a nenhuma sprint no Jira e que foram movidos para Pronto ou Em Revisao dentro do período de uma sprint: 47 em Pós-IHRSA, 82 em AI.Runner e 86 em AI.VECTA (26 + 21, 56 + 26 e 61 + 25 entre Subtarefas e cards avulsos). Cada card entra uma vez, na sprint da janela do seu primeiro Pronto ou da primeira revisão. Conta como <em>planejado</em> se foi criado até 5 dias após o início da sprint (mesma regra do fallback) e como <em>adicionado</em> se depois. Subtarefas já contadas pela sprint do pai não são repetidas.</li>
+        <li><strong>O que isso muda:</strong> o efeito principal é no desvio de escopo; a conclusão sobe pouco, porque os cards incluídos entram no numerador e no denominador.
+          <div class="table-scroll" style="margin:10px 0 4px"><table class="data" style="min-width:560px">
+            <thead><tr><th></th><th>Pós-IHRSA</th><th>AI.Runner</th><th>AI.VECTA*</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Cards no escopo — só o registrado nas sprints</th><td>172</td><td>173</td><td>169</td></tr>
+              <tr><th scope="row">… + Subtarefas fora de sprint</th><td>198</td><td>229</td><td>230</td></tr>
+              <tr><th scope="row">… + cards avulsos fora de sprint (esta versão)</th><td>219</td><td>255</td><td>255</td></tr>
+              <tr><th scope="row">Conclusão — só o registrado nas sprints</th><td>61,6%</td><td>62,4%</td><td>77,5% (74,0%)</td></tr>
+              <tr><th scope="row">Conclusão — + Subtarefas fora de sprint</th><td>66,7%</td><td>62,9%</td><td>83,5% (72,2%)</td></tr>
+              <tr><th scope="row">Conclusão — esta versão</th><td>69,4%</td><td>64,7%</td><td>85,1% (70,2%)</td></tr>
+              <tr><th scope="row">Desvio — só o registrado nas sprints</th><td>6,8%</td><td>0,6%</td><td>2,4%</td></tr>
+              <tr><th scope="row">Desvio — + Subtarefas fora de sprint</th><td>11,2%</td><td>7,0%</td><td>15,6%</td></tr>
+              <tr><th scope="row">Desvio — esta versão</th><td>10,1%</td><td>7,6%</td><td>14,9%</td></tr>
+            </tbody></table></div>
+          <span style="font-size:12px;color:var(--ink-3)">* Entre parênteses, a AI.VECTA no critério estrito (só Pronto, sem contar Em Revisao).</span></li>
+        <li><strong>Como interpretar:</strong> “sem sprint” hoje significa cards nunca adicionados a uma sprint ou retirados depois dela. Como só entram os cards de fora que <strong>progrediram</strong>, a conclusão desta versão é um teto e o desvio é um piso: cards fora de sprint parados não aparecem. A atribuição à sprint é aproximada, pela data do primeiro Pronto ou da primeira revisão, e não necessariamente pela sprint em que o time trabalhou no card.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer class="page-foot">Painel gerado a partir de sprint_metrics.py · branch analise_ponderada · AI.VECTA com EXTRA_DONE_STATUSES="Em Revisao" · inclui cards fora de sprint (simulação)</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var SPRINTS = [
+    { key: "PosIHRSA", label: "Pós-IHRSA",  color: "var(--s-copa)", soft: "var(--s-copa-soft)", range: "31 ago–11 set", closed: "encerrada" },
+    { key: "Runner",   label: "AI.Runner",  color: "var(--s-fit)",  soft: "var(--s-fit-soft)",  range: "14–25 set",     closed: "encerrada" },
+    { key: "VECTA",    label: "AI.VECTA",   color: "var(--s-hexa)", soft: "var(--s-hexa-soft)", range: "28 set–09 out", closed: "em andamento (fecha 09/10)" }
+  ];
+
+  var M = {
+    PosIHRSA: {"conclusao": 0.6940639269406392, "desvio": 0.10050251256281408, "bloqFinal": 0.0, "leadMedio": 55.67215469613259, "leadMediano": 18.03, "tempoBloqMedio": 12.284474474474477, "nBloqueados": 37, "retrabalho": 0.012903225806451613, "concluidos": 152, "total": 219, "planejadas": 199, "adicionadas": 20, "emRevisao": 16, "backlog": 50, "backlogComAndamento": 18, "extras": 47, "buckets": {"concluido": 152, "fluxo": 67, "bloqueado": 0}},
+    Runner: {"conclusao": 0.6470588235294118, "desvio": 0.0759493670886076, "bloqFinal": 0.004219409282700422, "leadMedio": 50.17683937823835, "leadMediano": 11.83, "tempoBloqMedio": 13.86750750750751, "nBloqueados": 37, "retrabalho": 0.0106951871657754, "concluidos": 165, "total": 255, "planejadas": 237, "adicionadas": 18, "emRevisao": 49, "backlog": 39, "backlogComAndamento": 5, "extras": 82, "buckets": {"concluido": 165, "fluxo": 89, "bloqueado": 1}},
+    VECTA: {"conclusao": 0.8509803921568627, "desvio": 0.14864864864864866, "bloqFinal": 0.0045045045045045045, "leadMedio": 49.15049723756906, "leadMediano": 11.74, "tempoBloqMedio": 10.955228758169936, "nBloqueados": 34, "retrabalho": 0.016129032258064516, "concluidos": 217, "total": 255, "planejadas": 222, "adicionadas": 33, "emRevisao": 38, "backlog": 36, "backlogComAndamento": 1, "extras": 86, "buckets": {"concluido": 217, "fluxo": 37, "bloqueado": 1}}
+  };
+  // VECTA: conclusão/composição com "Em Revisao" = concluído; lead time calculado até "Pronto" (comparável).
+
+  function pct(v, digits) { return v.toLocaleString("pt-BR", { style: "percent", minimumFractionDigits: digits || 0, maximumFractionDigits: digits || 1 }); }
+  function num(v, digits) { return v.toLocaleString("pt-BR", { minimumFractionDigits: digits || 0, maximumFractionDigits: digits || 0 }); }
+  function hoursFmt(v) { return num(v, 0) + "h"; }
+  function daysFmt(v) { return num(v, 1) + "d"; }
+
+  function svgEl(tag, attrs) {
+    var el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (var k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  }
+
+  function resolveColor(cssVar) {
+    var m = /var\((--[a-z0-9-]+)\)/i.exec(cssVar);
+    if (!m) return cssVar;
+    return getComputedStyle(document.documentElement).getPropertyValue(m[1]).trim();
+  }
+
+  // Small column chart: one bar per sprint, direct value labels, native hover tooltip.
+  function columnChart(containerId, values, formatter, opts) {
+    opts = opts || {};
+    var container = document.getElementById(containerId);
+    if (!container) return;
+    var width = container.clientWidth || 260;
+    var height = opts.height || 132;
+    var padding = { top: 26, right: 6, bottom: 22, left: 6 };
+    var plotW = width - padding.left - padding.right;
+    var plotH = height - padding.top - padding.bottom;
+    var gap = 16;
+    var barW = (plotW - gap * (values.length - 1)) / values.length;
+    var max = opts.max || Math.max.apply(null, values) * 1.22 || 1;
+
+    var svg = svgEl("svg", { viewBox: "0 0 " + width + " " + height, width: "100%", height: height, role: "img", "aria-label": opts.ariaLabel || "" });
+
+    svg.appendChild(svgEl("line", {
+      x1: padding.left, x2: width - padding.right,
+      y1: height - padding.bottom, y2: height - padding.bottom,
+      stroke: "var(--border)", "stroke-width": 1
+    }));
+
+    values.forEach(function (v, i) {
+      var barH = Math.max(3, (v / max) * plotH);
+      var x = padding.left + i * (barW + gap);
+      var y = height - padding.bottom - barH;
+      var color = resolveColor(SPRINTS[i].color);
+
+      var rect = svgEl("rect", { class: "bar", x: x, y: y, width: barW, height: barH, rx: 4, fill: color });
+      var title = svgEl("title", {});
+      title.textContent = SPRINTS[i].label + ": " + formatter(v);
+      rect.appendChild(title);
+      svg.appendChild(rect);
+
+      var label = svgEl("text", { class: "bar-value", x: x + barW / 2, y: y - 7, "text-anchor": "middle" });
+      label.textContent = formatter(v);
+      svg.appendChild(label);
+
+      var cat = svgEl("text", { class: "bar-cat", x: x + barW / 2, y: height - 6, "text-anchor": "middle" });
+      cat.textContent = SPRINTS[i].label;
+      svg.appendChild(cat);
+    });
+
+    container.appendChild(svg);
+  }
+
+  function stackedRow(containerId, buckets, total) {
+    var container = document.getElementById(containerId);
+    var width = container.clientWidth || 400;
+    var height = 30;
+    var svg = svgEl("svg", { viewBox: "0 0 " + width + " " + height, width: "100%", height: height });
+    var order = [
+      { key: "concluido", color: "var(--good)" },
+      { key: "fluxo", color: "var(--ink-3)" },
+      { key: "bloqueado", color: "var(--attn)" }
+    ];
+    var labelMap = { concluido: "Concluído", fluxo: "Em fluxo", bloqueado: "Bloqueado" };
+    var x = 0;
+    var gapPx = 2;
+    order.forEach(function (seg, i) {
+      var value = buckets[seg.key];
+      var w = (value / total) * width - (i < order.length - 1 ? gapPx : 0);
+      w = Math.max(w, 0);
+      var rect = svgEl("rect", { class: "bar", x: x, y: 0, width: w, height: height, rx: 4, fill: resolveColor(seg.color) });
+      var title = svgEl("title", {});
+      title.textContent = labelMap[seg.key] + ": " + value + " (" + Math.round((value / total) * 100) + "%)";
+      rect.appendChild(title);
+      svg.appendChild(rect);
+      x += w + gapPx;
+    });
+    container.appendChild(svg);
+  }
+
+  function deltaTag(current, previous, lowerIsBetter, previousLabel, isPercentPoints) {
+    var diff = current - previous;
+    var rel = previous !== 0 ? diff / previous : 0;
+    var favorable = lowerIsBetter ? diff < 0 : diff > 0;
+    var flat = Math.abs(rel) < 0.01;
+    var cls = flat ? "flat" : (favorable ? "good" : "attn");
+    var arrow = diff === 0 ? "→" : (diff > 0 ? "↑" : "↓");
+    var suffix = " vs. " + previousLabel;
+    var text = isPercentPoints
+      ? arrow + " " + (Math.abs(diff * 100)).toFixed(1).replace(".", ",") + " p.p." + suffix
+      : arrow + " " + Math.abs(Math.round(rel * 100)) + "%" + suffix;
+    var span = document.createElement("span");
+    span.className = "kpi-delta " + cls;
+    span.textContent = text;
+    return span;
+  }
+
+  function buildLegend() {
+    var el = document.getElementById("legend");
+    SPRINTS.forEach(function (s) {
+      var chip = document.createElement("div");
+      chip.className = "chip";
+      chip.innerHTML =
+        '<span class="swatch" style="background:' + s.color + '"></span>' +
+        '<span class="name">' + s.label + '</span>' +
+        '<span class="range">' + s.range + ' · ' + s.closed + '</span>';
+      el.appendChild(chip);
+    });
+  }
+
+  function buildKPIs() {
+    var grid = document.getElementById("kpi-grid");
+    var c = M.VECTA, h = M.Runner, prevLabel = "AI.Runner";
+
+    var cards = [
+      { label: "Conclusão da sprint (escopo total)", value: pct(c.conclusao, 1), delta: deltaTag(c.conclusao, h.conclusao, false, prevLabel, true), sub: c.concluidos + " de " + c.total + " cards (inclui " + c.emRevisao + " em revisão)" },
+      { label: "Lead time mediano", value: num(c.leadMediano, 1).replace(".", ",") + "h", delta: deltaTag(c.leadMediano, h.leadMediano, true, prevLabel), sub: "média: " + num(c.leadMedio) + "h · até Pronto" },
+      { label: "Tempo médio de bloqueio", value: num(c.tempoBloqMedio, 1).replace(".", ",") + "d úteis", delta: deltaTag(c.tempoBloqMedio, h.tempoBloqMedio, true, prevLabel), sub: c.nBloqueados + " cards passaram por bloqueio" },
+      { label: "Taxa de retrabalho", value: pct(c.retrabalho, 1), delta: deltaTag(c.retrabalho, h.retrabalho, true, prevLabel, true), sub: "após revisão reprovada" }
+    ];
+
+    cards.forEach(function (k) {
+      var card = document.createElement("div");
+      card.className = "kpi-card";
+      var label = document.createElement("div"); label.className = "kpi-label"; label.textContent = k.label;
+      var value = document.createElement("div"); value.className = "kpi-value"; value.textContent = k.value;
+      var sub = document.createElement("div"); sub.className = "kpi-sub"; sub.textContent = k.sub;
+      card.appendChild(label); card.appendChild(value); card.appendChild(k.delta); card.appendChild(sub);
+      grid.appendChild(card);
+    });
+  }
+
+  function buildComposition() {
+    var el = document.getElementById("comp-rows");
+    SPRINTS.forEach(function (s) {
+      var data = M[s.key];
+      var row = document.createElement("div");
+      row.className = "comp-row";
+      var name = document.createElement("div");
+      name.innerHTML = '<span class="sprint-name">' + s.label + '</span><span class="sprint-n">' + data.total + ' cards</span>';
+      var holder = document.createElement("div");
+      holder.id = "comp-" + s.key;
+      row.appendChild(name);
+      row.appendChild(holder);
+      el.appendChild(row);
+    });
+    SPRINTS.forEach(function (s) {
+      var data = M[s.key];
+      stackedRow("comp-" + s.key, data.buckets, data.total);
+    });
+  }
+
+  function semBacklog(d) { return d.concluidos / (d.total - d.backlog); }
+
+  // Barras agrupadas: "como está" (cinza) vs "sem Backlog" (accent), uma dupla por sprint.
+  function backlogCompareChart() {
+    var container = document.getElementById("chart-backlog-compare");
+    if (!container) return;
+    var width = container.clientWidth || 520, height = 190;
+    var pad = { top: 26, right: 8, bottom: 24, left: 8 };
+    var plotW = width - pad.left - pad.right, plotH = height - pad.top - pad.bottom;
+    var groupGap = 28, barGap = 6;
+    var groupW = (plotW - groupGap * (SPRINTS.length - 1)) / SPRINTS.length;
+    var barW = (groupW - barGap) / 2;
+    var svg = svgEl("svg", { viewBox: "0 0 " + width + " " + height, width: "100%", height: height, role: "img", "aria-label": "Conclusão do escopo total, como está e sem Backlog" });
+    svg.appendChild(svgEl("line", { x1: pad.left, x2: width - pad.right, y1: height - pad.bottom, y2: height - pad.bottom, stroke: "var(--border)", "stroke-width": 1 }));
+    SPRINTS.forEach(function (s, i) {
+      var d = M[s.key];
+      var pairs = [
+        { v: d.conclusao, color: resolveColor("var(--ink-3)"), name: "Como está" },
+        { v: semBacklog(d), color: resolveColor("var(--accent)"), name: "Sem Backlog" }
+      ];
+      pairs.forEach(function (p, j) {
+        var barH = Math.max(3, p.v * plotH);
+        var x = pad.left + i * (groupW + groupGap) + j * (barW + barGap);
+        var y = height - pad.bottom - barH;
+        var rect = svgEl("rect", { class: "bar", x: x, y: y, width: barW, height: barH, rx: 4, fill: p.color });
+        var t = svgEl("title", {}); t.textContent = s.label + " — " + p.name + ": " + pct(p.v, 1);
+        rect.appendChild(t); svg.appendChild(rect);
+        var lab = svgEl("text", { class: "bar-value", x: x + barW / 2, y: y - 7, "text-anchor": "middle" });
+        lab.textContent = pct(p.v, 1); svg.appendChild(lab);
+      });
+      var cat = svgEl("text", { class: "bar-cat", x: pad.left + i * (groupW + groupGap) + groupW / 2, y: height - 7, "text-anchor": "middle" });
+      cat.textContent = s.label; svg.appendChild(cat);
+    });
+    container.appendChild(svg);
+  }
+
+  function buildBacklogTable() {
+    var table = document.getElementById("backlog-table");
+    var rows = [
+      ["Cards no escopo", function (d) { return num(d.total); }],
+      ["Terminaram em Backlog", function (d) { return num(d.backlog) + " (" + pct(d.backlog / d.total, 0) + ")"; }],
+      ["Escopo sem Backlog", function (d) { return num(d.total - d.backlog); }],
+      ["Cards concluídos", function (d) { return num(d.concluidos); }],
+      ["Conclusão — como está", function (d) { return pct(d.conclusao, 1); }],
+      ["Conclusão — sem Backlog", function (d) { return pct(semBacklog(d), 1); }],
+      ["Diferença", function (d) { return "+" + ((semBacklog(d) - d.conclusao) * 100).toFixed(1).replace(".", ",") + " p.p."; }],
+      ["Backlog que já tinha tido andamento", function (d) { return num(d.backlogComAndamento); }]
+    ];
+    var thead = document.createElement("thead"), hr = document.createElement("tr");
+    hr.innerHTML = "<th>Métrica</th>" + SPRINTS.map(function (s) { return "<th>" + s.label + "</th>"; }).join("");
+    thead.appendChild(hr); table.appendChild(thead);
+    var tbody = document.createElement("tbody");
+    rows.forEach(function (r) {
+      var tr = document.createElement("tr"), th = document.createElement("th");
+      th.textContent = r[0]; th.setAttribute("scope", "row"); tr.appendChild(th);
+      SPRINTS.forEach(function (s) { var td = document.createElement("td"); td.textContent = r[1](M[s.key]); tr.appendChild(td); });
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+  }
+
+  function buildInsights() {
+    var el = document.getElementById("insights");
+    var items = [
+      {
+        pill: "attn", pillText: "Escopo ampliado",
+        title: "Esta versão inclui 215 cards que não estavam em nenhuma sprint",
+        body: "47 (Pós-IHRSA), 82 (AI.Runner) e 86 (AI.VECTA) cards foram movidos para Pronto ou Em Revisao no período, mas hoje não pertencem a nenhuma sprint no Jira. Sem eles, o escopo seria de 172, 173 e 169 cards."
+      },
+      {
+        pill: "attn", pillText: "Atenção",
+        title: "O desvio de escopo é maior do que o registrado: 10,1%, 7,6% e 14,9%",
+        body: "Só com o que estava nas sprints, o desvio seria 6,8%, 0,6% e 2,4%, e o planejamento pareceria estável. Com os cards de fora, a AI.VECTA passa a ter o maior desvio das três. O desvio real é ao menos este: cards fora de sprint que ficaram parados não entram na conta."
+      },
+      {
+        pill: "attn", pillText: "Dado parcial",
+        title: "AI.VECTA: 85,1% de conclusão, ou 70,2% sem contar a revisão",
+        body: "Pós-IHRSA fechou em 69,4% e AI.Runner em 64,7%. Contando as 38 tarefas em Em Revisao como concluídas, a AI.VECTA lidera; no critério estrito (só Pronto) fica acima da AI.Runner, mas em linha com a Pós-IHRSA. O número final sai com o fechamento de 09/10."
+      },
+      {
+        pill: "gap", pillText: "Leve queda",
+        title: "Lead time mediano em ~12–18h, média em ~49–56h",
+        body: "18,0h → 11,8h → 11,7h de mediana e 55,7h → 50,2h → 49,2h de média (todas até Pronto). Os cards de fora das sprints têm ciclo curto e puxam a mediana para baixo; contar Em Revisao como fim na AI.VECTA derrubaria a mediana para 0,3h, artefato da regra."
+      },
+      {
+        pill: "good", pillText: "Estável",
+        title: "Retrabalho em torno de 1% a 2% nas três sprints",
+        body: "1,3% (Pós-IHRSA), 1,1% (AI.Runner) e 1,6% (AI.VECTA) — nas sprints do painel anterior (Copa a Pré-IHRSA) a taxa ficava entre 4,0% e 4,5%. A base é de 155 a 187 entradas em revisão por sprint."
+      },
+      {
+        pill: "attn", pillText: "Atenção",
+        title: "De 14% a 23% dos cards terminam a sprint ainda no Backlog",
+        body: "50 (23%) em Pós-IHRSA, 39 (15%) em AI.Runner e 36 (14%) em AI.VECTA. Eles seguem contando no denominador da conclusão, o que limita o teto da métrica; a seção acima mostra o efeito de retirá-los."
+      },
+      {
+        pill: "good", pillText: "Fluxo novo",
+        title: "Nenhum card terminou em QA, HOMOLOGAÇÃO ou PRONTO P/ TESTES e PROD",
+        body: "Como esperado após a simplificação do workflow, os status finais das três sprints se resumem a Pronto, Em Revisao, EM ANDAMENTO, Backlog e Bloqueado — inclusive entre os cards incluídos de fora das sprints."
+      },
+      {
+        pill: "gap", pillText: "Dado insuficiente",
+        title: "Precisão de estimativa ainda não é mensurável",
+        body: "Poucas Subtarefas registram tempo estimado e tempo gasto ao mesmo tempo. Segue fora deste painel."
+      }
+    ];
+    items.forEach(function (it) {
+      var card = document.createElement("div");
+      card.className = "insight-card";
+      card.innerHTML =
+        '<span class="pill ' + it.pill + '">' + it.pillText + '</span>' +
+        '<p class="insight-title">' + it.title + '</p>' +
+        '<p class="insight-body">' + it.body + '</p>';
+      el.appendChild(card);
+    });
+  }
+
+  function buildTable() {
+    var rows = [
+      ["Cards no total", function (d) { return num(d.total); }],
+      ["Planejadas / adicionadas", function (d) { return num(d.planejadas) + " / " + num(d.adicionadas); }],
+      ["Cards incluídos de fora das sprints", function (d) { return num(d.extras); }],
+      ["Cards concluídos", function (d) { return num(d.concluidos); }],
+      ["Cards em Em Revisao ao final", function (d) { return num(d.emRevisao); }],
+      ["Cards em Backlog ao final", function (d) { return num(d.backlog); }],
+      ["Conclusão do escopo total", function (d) { return pct(d.conclusao, 1); }],
+      ["Desvio de escopo", function (d) { return pct(d.desvio, 1); }],
+      ["% bloqueados ao final", function (d) { return pct(d.bloqFinal, 1); }],
+      ["Cards que passaram por bloqueio", function (d) { return num(d.nBloqueados); }],
+      ["Tempo médio de bloqueio (dias úteis)", function (d) { return num(d.tempoBloqMedio, 1); }],
+      ["Lead time mediano (h úteis)", function (d) { return num(d.leadMediano, 1); }],
+      ["Lead time médio (h úteis)", function (d) { return num(d.leadMedio, 1); }],
+      ["Taxa de retrabalho", function (d) { return pct(d.retrabalho, 1); }]
+    ];
+    var table = document.getElementById("data-table");
+    var thead = document.createElement("thead");
+    var headRow = document.createElement("tr");
+    headRow.innerHTML = "<th>Métrica</th>" + SPRINTS.map(function (s) { return "<th>" + s.label + "</th>"; }).join("");
+    thead.appendChild(headRow);
+    table.appendChild(thead);
+    var tbody = document.createElement("tbody");
+    rows.forEach(function (r) {
+      var tr = document.createElement("tr");
+      var th = document.createElement("th");
+      th.textContent = r[0];
+      th.setAttribute("scope", "row");
+      tr.appendChild(th);
+      SPRINTS.forEach(function (s) {
+        var td = document.createElement("td");
+        td.textContent = r[1](M[s.key]);
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+  }
+
+  function buildCharts() {
+    var vals = function (key) { return SPRINTS.map(function (s) { return M[s.key][key]; }); };
+
+    columnChart("chart-conclusao", vals("conclusao"), function (v) { return pct(v, 0); }, { ariaLabel: "Conclusão do escopo total por sprint" });
+    columnChart("chart-desvio", vals("desvio"), function (v) { return pct(v, 1); }, { ariaLabel: "Desvio de escopo por sprint" });
+    columnChart("chart-concluidos", vals("concluidos"), function (v) { return num(v); }, { ariaLabel: "Cards concluídos por sprint" });
+
+    columnChart("chart-lead-mediana", vals("leadMediano"), hoursFmt, { height: 96, ariaLabel: "Lead time mediano por sprint" });
+    columnChart("chart-lead-media", vals("leadMedio"), hoursFmt, { height: 96, max: Math.max.apply(null, vals("leadMedio")) * 1.22, ariaLabel: "Lead time médio por sprint" });
+
+    columnChart("chart-bloq-final", vals("bloqFinal"), function (v) { return pct(v, 1); }, { ariaLabel: "Percentual de cards bloqueados ao final" });
+    columnChart("chart-tempo-bloq", vals("tempoBloqMedio"), daysFmt, { ariaLabel: "Tempo médio de bloqueio em dias úteis" });
+
+    columnChart("chart-retrabalho", vals("retrabalho"), function (v) { return pct(v, 1); }, { ariaLabel: "Taxa de retrabalho por sprint" });
+    columnChart("chart-n-bloqueados", vals("nBloqueados"), function (v) { return num(v); }, { ariaLabel: "Quantidade de cards que passaram por bloqueio" });
+    columnChart("chart-backlog-n", vals("backlog"), function (v) { return num(v); }, { height: 190, ariaLabel: "Cards que terminaram em Backlog por sprint" });
+    backlogCompareChart();
+    buildBacklogTable();
+  }
+
+  buildLegend();
+  buildKPIs();
+  buildComposition();
+  buildCharts();
+  buildInsights();
+  buildTable();
+})();
+</script>
